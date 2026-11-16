@@ -1,14 +1,17 @@
-import { BrowserRouter } from "react-router-dom"
-import { EstiloGlobal } from "./styles"
-import Rotas from "./routes"
-
+import { BrowserRouter } from 'react-router-dom'
+import { Provider } from 'react-redux'
+import { EstiloGlobal } from './styles'
+import Rotas from './routes'
+import { store } from './store'
 
 function App() {
   return (
-    <BrowserRouter>
-    <EstiloGlobal />
-    <Rotas />
-    </BrowserRouter>
+    <Provider store={store}>
+      <BrowserRouter>
+        <EstiloGlobal />
+        <Rotas />
+      </BrowserRouter>
+    </Provider>
   )
 }
 

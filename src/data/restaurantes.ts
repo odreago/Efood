@@ -3,7 +3,14 @@ import sushi from '../assets/imagens/Sushi.png'
 import massa from '../assets/imagens/Macarrao.png'
 
 
-export type Prato = { id: number; nome: string; descricao: string; foto: string }
+export type Prato = {
+  id: number
+  nome: string
+  descricao: string
+  foto: string
+  porcao: string
+  preco: number
+}
 
 export type Restaurante = {
   id: number
@@ -17,13 +24,15 @@ export type Restaurante = {
 }
 
 const descricaoPrato =
-  'A clássica Marguerita: molho de tomate suculento, mussarela derretida, manjericão fresco e um toque de azeite. Sabor e simplicidade!'
+  'A pizza Margherita é uma pizza clássica da culinária italiana, reconhecida por sua simplicidade e sabor inigualável. Ela é feita com uma base de massa fina e crocante, coberta com molho de tomate fresco, queijo mussarela de alta qualidade, manjericão fresco e azeite de oliva extra-virgem.'
 
 const pratos: Prato[] = Array.from({ length: 6 }, (_, i) => ({
   id: i + 1,
   nome: 'Pizza Marguerita',
   descricao: descricaoPrato,
-  foto: pizza
+  foto: pizza,
+  porcao: 'de 2 a 3 pessoas',
+  preco: 60.9
 }))
 
 const descricaoRest =

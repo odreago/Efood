@@ -5,6 +5,7 @@ import Footer from '../../Components/Footer'
 import CardPrato from '../../Components/CardPrato'
 import { Container, colors } from '../../styles'
 import { restaurantes } from '../../data/restaurantes'
+import Cart from '../../Components/Cart'
 
 const Banner = styled.div<{ $capa: string }>`
   height: 280px;
@@ -59,6 +60,7 @@ const Perfil = () => {
           ))}
         </Lista>
       </Container>
+      <Cart />
       <Footer />
     </>
   )
