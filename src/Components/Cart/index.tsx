@@ -1,9 +1,17 @@
+import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { colors } from '../../styles'
 import type { RootState } from '../../store'
-import { close, remove } from '../../store/reducers/cart'
+import { clear, close, remove } from '../../store/reducers/cart'
 import { formataPreco } from '../../utils'
+import Entrega from '../Checkout/Entrega'
+import { entregaVazia } from '../Checkout/types'
+import type { DadosEntrega } from '../Checkout/types'
+import Pagamento from '../Checkout/Pagamento'
+import Confirmacao from '../Checkout/Confirmacao'
+
+type Etapa = 'carrinho' | 'entrega' | 'pagamento' | 'confirmacao'
 
 const Overlay = styled.div<{ $aberto: boolean }>`
   position: fixed;
@@ -80,33 +88,83 @@ const Cart = () => {
   const { items, isOpen } = useSelector((state: RootState) => state.cart)
   const dispatch = useDispatch()
 
+  const [etapa, setEtapa] = useState<Etapa>('carrinho')
+  const [entrega, setEntrega] = useState<DadosEntrega>(entregaVazia)
+  const [pedido, setPedido] = useState('')
+
   const total = items.reduce((acc, item) => acc + item.preco, 0)
 
+  const resetar = () => {
+    setEtapa('carrinho')
+    setEntrega(entregaVazia)
+    setPedido('')
+  }
+
+  const fechar = () => {
+    dispatch(close())
+    if (etapa === 'confirmacao') resetar()
+  }
+
+  const finalizarPagamento = () => {
+    setPedido(`PED-${Date.now().toString().slice(-6)}`)
+    dispatch(clear())
+    setEtapa('confirmacao')
+  }
+
+  const concluir = () => {
+    dispatch(close())
+    resetar()
+  }
+
   return (
-    <Overlay $aberto={isOpen} onClick={() => dispatch(close())}>
+    <Overlay $aberto={isOpen} onClick={fechar}>
       <Sidebar onClick={(e) => e.stopPropagation()}>
-        {items.length > 0 ? (
-          <>
-            <ul>
-              {items.map((item) => (
-                <Item key={item.id}>
-                  <img src={item.foto} alt={item.nome} />
-                  <div>
-                    <h3>{item.nome}</h3>
-                    <span>{formataPreco(item.preco)}</span>
-                  </div>
-                  <Lixeira onClick={() => dispatch(remove(item.id))}>🗑</Lixeira>
-                </Item>
-              ))}
-            </ul>
-            <Total>
-              <span>Valor total</span>
-              <span>{formataPreco(total)}</span>
-            </Total>
-            <Botao>Continuar com a entrega</Botao>
-          </>
-        ) : (
-          <p>O carrinho está vazio, adicione pelo menos um produto para continuar com a compra.</p>
+        {etapa === 'carrinho' &&
+          (items.length > 0 ? (
+            <>
+              <ul>
+                {items.map((item) => (
+                  <Item key={item.id}>
+                    <img src={item.foto} alt={item.nome} />
+                    <div>
+                      <h3>{item.nome}</h3>
+                      <span>{formataPreco(item.preco)}</span>
+                    </div>
+                    <Lixeira onClick={() => dispatch(remove(item.id))}>🗑</Lixeira>
+                  </Item>
+                ))}
+              </ul>
+              <Total>
+                <span>Valor total</span>
+                <span>{formataPreco(total)}</span>
+              </Total>
+              <Botao onClick={() => setEtapa('entrega')}>Continuar com a entrega</Botao>
+            </>
+          ) : (
+            <p>O carrinho está vazio, adicione pelo menos um produto para continuar com a compra.</p>
+          ))}
+
+        {etapa === 'entrega' && (
+          <Entrega
+            inicial={entrega}
+            onContinuar={(dados) => {
+              setEntrega(dados)
+              setEtapa('pagamento')
+            }}
+            onVoltar={() => setEtapa('carrinho')}
+          />
+        )}
+
+        {etapa === 'pagamento' && (
+          <Pagamento
+            total={total}
+            onFinalizar={finalizarPagamento}
+            onVoltar={() => setEtapa('entrega')}
+          />
+        )}
+
+        {etapa === 'confirmacao' && (
+          <Confirmacao pedido={pedido} onConcluir={concluir} />
         )}
       </Sidebar>
     </Overlay>
