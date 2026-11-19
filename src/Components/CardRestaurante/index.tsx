@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { colors } from '../../styles'
-import type { Restaurante } from '../../data/restaurantes'
+import type {Restaurante} from '../../Types'
 
 const Card = styled.div`
   position: relative;
@@ -31,6 +31,7 @@ const Tag = styled.span`
   font-size: 12px;
   font-weight: 700;
   padding: 6px 4px;
+  text-transform: capitalize;
 `
 
 const Corpo = styled.div`
@@ -68,15 +69,15 @@ type Props = { restaurante: Restaurante }
 
 const CardRestaurante = ({ restaurante: r }: Props) => (
   <Card>
-    <img src={r.foto} alt={r.titulo} />
+    <img src={r.capa} alt={r.titulo} />
     <Tags>
-      {r.destaque && <Tag>Destaque da semana</Tag>}
+      {r.destacado && <Tag>Destaque da semana</Tag>}
       <Tag>{r.tipo}</Tag>
     </Tags>
     <Corpo>
       <Titulo>
         <h3>{r.titulo}</h3>
-        <span>{r.nota}</span>
+        <span>{r.avaliacao}</span>
       </Titulo>
       <p>{r.descricao}</p>
       <Botao to={`/perfil/${r.id}`}>Saiba mais</Botao>

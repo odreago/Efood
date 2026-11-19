@@ -3,7 +3,7 @@ import Header from '../../Components/Header'
 import Footer from '../../Components/Footer'
 import CardRestaurante from '../../Components/CardRestaurante'
 import { Container } from '../../styles'
-import { restaurantes } from '../../data/restaurantes'
+import { useRestaurantes } from '../../hooks/useRestaurantes'
 
 const Lista = styled.div`
   display: grid;
@@ -15,19 +15,24 @@ const Lista = styled.div`
     grid-template-columns: 1fr;
   }
 `
+const Home = () => {
+  const { restaurantes, carregando, erro } = useRestaurantes()
 
-const Home = () => (
-  <>
-    <Header />
-    <Container>
-      <Lista>
-        {restaurantes.map((r) => (
-          <CardRestaurante key={r.id} restaurante={r} />
-        ))}
-      </Lista>
-    </Container>
-    <Footer />
-  </>
-)
+  return (
+    <>
+      <Header />
+      <Container>
+        {carregando && <p style={{ paddingTop: 80 }}>Carregando...</p>}
+        {erro && <p style={{ paddingTop: 80 }}>Não foi possível carregar os restaurantes.</p>}
+        <Lista>
+          {restaurantes.map((r) => (
+            <CardRestaurante key={r.id} restaurante={r} />
+          ))}
+        </Lista>
+      </Container>
+      <Footer />
+    </>
+  )
+}
 
 export default Home

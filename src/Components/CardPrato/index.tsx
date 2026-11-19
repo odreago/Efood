@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import styled from 'styled-components'
 import { colors } from '../../styles'
-import type { Prato } from '../../data/restaurantes'
+import type { Prato} from '../../Types'
 import { add, open } from '../../store/reducers/cart'
 import { formataPreco } from '../../utils'
 

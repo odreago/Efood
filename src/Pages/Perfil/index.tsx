@@ -4,8 +4,8 @@ import HeaderPerfil from '../../Components/HeaderPerfil'
 import Footer from '../../Components/Footer'
 import CardPrato from '../../Components/CardPrato'
 import { Container, colors } from '../../styles'
-import { restaurantes } from '../../data/restaurantes'
 import Cart from '../../Components/Cart'
+import { useRestaurantes } from '../../hooks/useRestaurantes'
 
 const Banner = styled.div<{ $capa: string }>`
   height: 280px;
@@ -40,14 +40,17 @@ const Lista = styled.div`
 
 const Perfil = () => {
   const { id } = useParams()
+  const { restaurantes, carregando, erro } = useRestaurantes()
   const restaurante = restaurantes.find((r) => r.id === Number(id))
 
+  if (carregando) return <p>Carregando...</p>
+  if (erro) return <p>Não foi possível carregar o restaurante.</p>
   if (!restaurante) return <h1>Restaurante não encontrado</h1>
 
   return (
     <>
       <HeaderPerfil />
-      <Banner $capa={restaurante.foto}>
+      <Banner $capa={restaurante.capa}>
         <Container>
           <span>{restaurante.tipo}</span>
           <h2>{restaurante.titulo}</h2>
@@ -55,7 +58,7 @@ const Perfil = () => {
       </Banner>
       <Container>
         <Lista>
-          {restaurante.pratos.map((p) => (
+          {restaurante.cardapio.map((p) => (
             <CardPrato key={p.id} prato={p} />
           ))}
         </Lista>
