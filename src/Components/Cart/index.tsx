@@ -7,7 +7,7 @@ import { clear, close, remove } from '../../store/reducers/cart'
 import { formataPreco } from '../../utils'
 import Entrega from '../Checkout/Entrega'
 import { entregaVazia } from '../Checkout/types'
-import type { DadosEntrega } from '../Checkout/types'
+import type { DadosEntrega, DadosPagamento } from '../Checkout/types'
 import Pagamento from '../Checkout/Pagamento'
 import Confirmacao from '../Checkout/Confirmacao'
 
@@ -91,6 +91,8 @@ const Cart = () => {
   const [etapa, setEtapa] = useState<Etapa>('carrinho')
   const [entrega, setEntrega] = useState<DadosEntrega>(entregaVazia)
   const [pedido, setPedido] = useState('')
+  const [carregando, setCarregando] = useState(false)
+  const [erroEnvio, setErroEnvio] = useState('')
 
   const total = items.reduce((acc, item) => acc + item.preco, 0)
 
@@ -105,10 +107,48 @@ const Cart = () => {
     if (etapa === 'confirmacao') resetar()
   }
 
-  const finalizarPagamento = () => {
-    setPedido(`PED-${Date.now().toString().slice(-6)}`)
-    dispatch(clear())
-    setEtapa('confirmacao')
+   const finalizarPagamento = async (pag: DadosPagamento) => {
+    setCarregando(true)
+    setErroEnvio('')
+
+    const corpo = {
+      products: items.map((i) => ({ id: i.id, price: i.preco })),
+      delivery: {
+        receiver: entrega.nome,
+        address: {
+          description: entrega.endereco,
+          city: entrega.cidade,
+          zipCode: entrega.cep.replace(/\D/g, ''),
+          number: Number(entrega.numero),
+          complement: entrega.complemento
+        }
+      },
+      payment: {
+        card: {
+          name: pag.nomeCartao,
+          number: pag.numeroCartao.replace(/\D/g, ''),
+          code: Number(pag.cvv),
+          expires: { month: Number(pag.mes), year: Number(pag.ano) }
+        }
+      }
+    }
+
+    try {
+      const res = await fetch('https://api-ebac.vercel.app/api/efood/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(corpo)
+      })
+      if (!res.ok) throw new Error('Falha no envio')
+      const dados = await res.json()
+      setPedido(dados.orderId)
+      dispatch(clear())
+      setEtapa('confirmacao')
+    } catch {
+      setErroEnvio('Não foi possível finalizar o pedido. Tente novamente.')
+    } finally {
+      setCarregando(false)
+    }
   }
 
   const concluir = () => {
@@ -158,6 +198,8 @@ const Cart = () => {
         {etapa === 'pagamento' && (
           <Pagamento
             total={total}
+            carregando={carregando}
+            erroEnvio={erroEnvio}
             onFinalizar={finalizarPagamento}
             onVoltar={() => setEtapa('entrega')}
           />

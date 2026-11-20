@@ -15,3 +15,11 @@ export const entregaVazia: DadosEntrega = {
   numero: '',
   complemento: ''
 }
+
+export type DadosPagamento = {
+  nomeCartao: string
+  numeroCartao: string
+  cvv: string
+  mes: string
+  ano: string
+}

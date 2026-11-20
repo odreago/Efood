@@ -1,22 +1,17 @@
 import { useState } from 'react'
 import { formataPreco } from '../../utils'
-import { Botao, Botoes, Campo, Linha, Titulo } from './styles'
-
-type DadosPagamento = {
-  nomeCartao: string
-  numeroCartao: string
-  cvv: string
-  mes: string
-  ano: string
-}
+import type { DadosPagamento } from './types'
+import { Botao, Botoes, Campo, Linha, Texto, Titulo } from './styles'
 
 type Props = {
   total: number
-  onFinalizar: () => void
+  carregando: boolean
+  erroEnvio: string
+  onFinalizar: (dados: DadosPagamento) => void
   onVoltar: () => void
 }
 
-const Pagamento = ({ total, onFinalizar, onVoltar }: Props) => {
+const Pagamento = ({ total, carregando, erroEnvio, onFinalizar, onVoltar }: Props) => {
   const [dados, setDados] = useState<DadosPagamento>({
     nomeCartao: '',
     numeroCartao: '',
@@ -45,7 +40,7 @@ const Pagamento = ({ total, onFinalizar, onVoltar }: Props) => {
   }
 
   const finalizar = () => {
-    if (validar()) onFinalizar()
+    if (validar()) onFinalizar(dados)
   }
 
   return (
@@ -84,9 +79,14 @@ const Pagamento = ({ total, onFinalizar, onVoltar }: Props) => {
         </Campo>
       </Linha>
 
+            {erroEnvio && <Texto>{erroEnvio}</Texto>}
       <Botoes>
-        <Botao onClick={finalizar}>Finalizar pagamento</Botao>
-        <Botao onClick={onVoltar}>Voltar para a edição de endereço</Botao>
+        <Botao onClick={finalizar} disabled={carregando}>
+          {carregando ? 'Finalizando pagamento...' : 'Finalizar pagamento'}
+        </Botao>
+        <Botao onClick={onVoltar} disabled={carregando}>
+          Voltar para a edição de endereço
+        </Botao>
       </Botoes>
     </div>
   )
